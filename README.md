@@ -4,6 +4,9 @@
 
 This document outlines the processes and steps undertaken in the SQL Data Cleaning Project for the [Data Cleaning Project] database, specifically focusing on the NashvilleHousing table. The goal is to enhance the quality and consistency of the data for more accurate and meaningful analysis.
 
+### Client Goal
+The client aimed to enhance the quality and usability of the Nashville Housing dataset by addressing inconsistencies and standardizing key data elements. The primary objectives were to ensure accurate analysis and reporting, as well as to improve overall data integrity.
+
 ## Table of Contents
 
 1. [Standardizing Sales Date](#standardizing-sales-date)
@@ -39,7 +42,14 @@ To fill in missing values in the `PropertyAddress` column by leveraging availabl
 ### Steps
 
 - The SQL script updates the `PropertyAddress` column by using non-null values from corresponding records in the dataset.
-
+```UPDATE a
+SET PropertyAddress = ISNULL(a.PropertyAddress, b.PropertyAddress)
+FROM [Data Cleaning Project]..Nashville AS a
+JOIN [Data Cleaning Project]..Nashville AS b
+ON a.ParcelID = b.ParcelID
+AND a.[UniqueID ] <> b.[UniqueID ]
+WHERE a.PropertyAddress IS NULL;
+```
 ---
 
 ## 3. Breaking down Addresses
@@ -54,7 +64,14 @@ To break down the `PropertyAddress` into distinct components like Address and Ci
 
 - Two new columns, `PropertySplitAddress` and `PropertyCity`, are added to the table.
 - The `PropertyAddress` is then split into these new columns.
+```ALTER TABLE [Data Cleaning Project]..Nashville
+ADD PropertySplitAddress VARCHAR(255),
+    PropertyCity VARCHAR(255);
 
+UPDATE [Data Cleaning Project]..Nashville
+SET PropertySplitAddress = SUBSTRING(PropertyAddress, 1, CHARINDEX(',', PropertyAddress) - 1),
+    PropertyCity = SUBSTRING(PropertyAddress, CHARINDEX(',', PropertyAddress) + 1, LEN(PropertyAddress));
+```
 ### Owners' Addresses
 
 #### Objective
@@ -77,7 +94,12 @@ To update the values in the `SoldAsVacant` column from 'Y' and 'N' to 'Yes' and 
 ### Steps
 
 - The SQL script utilizes a `CASE` statement to update the values accordingly.
-
+```UPDATE [Data Cleaning Project]..Nashville
+SET SoldAsVacant = CASE
+                    WHEN SoldAsVacant = 'Y' THEN 'Yes'
+                    WHEN SoldAsVacant = 'N' THEN 'No'
+                    ELSE SoldAsVacant
+                  END;
 ---
 
 ## 5. Removing Duplicate Records
@@ -90,7 +112,21 @@ Identifying and eliminating duplicate records based on specific criteria to main
 
 - The SQL script employs a common table expression (CTE) to assign row numbers based on certain fields.
 - The script then selects records from the CTE, effectively eliminating duplicates.
-
+```WITH RownumCTE AS (
+  SELECT *,
+         ROW_NUMBER() OVER (
+           PARTITION BY ParcelID,
+                        SalePrice,
+                        SaleDate,
+                        LegalReference
+           ORDER BY UniqueID
+         ) AS row_num
+  FROM [Data Cleaning Project]..Nashville
+)
+-- Delete duplicates
+SELECT * 
+FROM RownumCTE;
+```
 ---
 
 ## 6. Deleting Unnecessary Columns
@@ -101,8 +137,10 @@ To streamline the dataset by removing unnecessary columns that do not contribute
 
 ### Steps
 
-- The SQL script removes the `OwnerAddress`, `PropertyAddress`, and `TaxDistrict` columns from the table.
-
+- The SQL script removes the Original `SaleDate`, `OwnerAddress`, `PropertyAddress`, and `TaxDistrict` columns from the table.
+``` ALTER TABLE [Data Cleaning Project]..Nashville
+DROP COLUMN SaleDate, OwnerAddress, PropertyAddress, TaxDistrict;
+```
 ---
 
 ## Conclusion
