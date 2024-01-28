@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the processes and steps undertaken in the SQL Data Cleaning Project for the [Data Cleaning Project] database, specifically focusing on the NashvilleHousing table. The goal is to enhance the quality and consistency of the data for more accurate and meaningful analysis.
+This document outlines the processes and steps undertaken in the SQL Data Cleaning Project for the Nashville Housing dataset.
 
 ### Client Goal
 The client aimed to enhance the quality and usability of the Nashville Housing dataset by addressing inconsistencies and standardizing key data elements. The primary objectives were to ensure accurate analysis and reporting, as well as to improve overall data integrity.
@@ -24,7 +24,7 @@ The client aimed to enhance the quality and usability of the Nashville Housing d
 
 ### Objective
 
-The aim is to standardize the format of sales dates in the NashvilleHousing table. This ensures a consistent representation for better clarity and analysis.
+The aim is to standardize the format of sales dates in the Nashville table. This ensures a consistent representation for better clarity and analysis.
 
 ### Steps
 
